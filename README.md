@@ -14,7 +14,7 @@ Educational and research use only.
 
 ```
 mia_test/
-├── mlp_attack/            # MLP-based membership inference attack
+├── mlp_attack/            
 │   ├── mlp_classifier_model.py
 │   ├── train_mlp_classifier.py
 │   ├── train_mlp_shadows.py
@@ -23,7 +23,7 @@ mia_test/
 │   ├── membership_inference_attack.py
 │   └── README.md
 │
-├── cnn_attack/            # CNN-based membership inference attack
+├── cnn_attack/
 │   ├── cnn_classifier_model.py
 │   ├── train_cnn_classifier.py
 │   ├── train_cnn_shadows.py
@@ -34,7 +34,7 @@ mia_test/
 │
 ├── data/                  # Shared CIFAR10 dataset (auto-downloaded)
 ├── requirements.txt       # Python dependencies
-└── README.md             # This file
+└── README.md              # This file
 ```
 
 ## Two Attack Implementations
