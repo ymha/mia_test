@@ -1,5 +1,5 @@
 """
-Baseline classifier - vulnerable to membership inference attacks
+MLP classifier for CIFAR10 - vulnerable to membership inference attacks
 
 This classifier trains directly on raw pixels (3072 dimensions for CIFAR10).
 This makes it more vulnerable to membership inference because:
@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class BaselineClassifier(nn.Module):
+class MLPClassifier(nn.Module):
     """
     Simple MLP classifier trained directly on raw CIFAR10 pixels
 
@@ -23,7 +23,7 @@ class BaselineClassifier(nn.Module):
     - Direct training on high-dimensional inputs
     """
     def __init__(self, hidden_dim=512):
-        super(BaselineClassifier, self).__init__()
+        super(MLPClassifier, self).__init__()
 
         # Network architecture: 3072 -> hidden_dim -> 256 -> 10
         self.fc1 = nn.Linear(3072, hidden_dim)

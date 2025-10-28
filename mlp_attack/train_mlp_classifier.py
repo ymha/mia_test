@@ -1,7 +1,7 @@
 """
-Train baseline classifier
+Train MLP classifier
 
-This creates a baseline that is intentionally vulnerable to demonstrate
+This creates a classifier that is intentionally vulnerable to demonstrate
 that membership inference attacks CAN work without privacy protections.
 """
 
@@ -11,16 +11,16 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 import numpy as np
-from baseline_classifier_model import BaselineClassifier
+from mlp_classifier_model import MLPClassifier
 import os
 
 
-def train_baseline_classifier(num_samples=10000, hidden_dim=512, epochs=100,
-                            batch_size=128, learning_rate=1e-3,
-                            device='cuda' if torch.cuda.is_available() else 'cpu',
-                            save_path='baseline_classifier.pth'):
+def train_mlp_classifier(num_samples=10000, hidden_dim=512, epochs=100,
+                         batch_size=128, learning_rate=1e-3,
+                         device='cuda' if torch.cuda.is_available() else 'cpu',
+                         save_path='mlp_classifier.pth'):
     """
-    Train baseline classifier
+    Train MLP classifier
 
     This classifier is vulnerable to membership inference because:
     - No information bottleneck (trains on raw 3072-D pixels)
@@ -61,13 +61,13 @@ def train_baseline_classifier(num_samples=10000, hidden_dim=512, epochs=100,
     train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = BaselineClassifier(hidden_dim=hidden_dim).to(device)
+    model = MLPClassifier(hidden_dim=hidden_dim).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     # Training loop
     model.train()
-    print(f"Training baseline classifier on {num_samples} CIFAR10 samples...")
+    print(f"Training MLP classifier on {num_samples} CIFAR10 samples...")
     print(f"Hidden dim: {hidden_dim}, Epochs: {epochs}")
     print(f"Device: {device}")
     print("\nThis model is INTENTIONALLY VULNERABLE to membership inference!")
@@ -142,7 +142,7 @@ def train_baseline_classifier(num_samples=10000, hidden_dim=512, epochs=100,
     }, save_path)
 
     print(f"\n{'='*70}")
-    print(f"Baseline classifier training complete!")
+    print(f"MLP classifier training complete!")
     print(f"Model saved to {save_path}")
     print(f"Training indices: {len(indices)} samples")
     print(f"Final Train Accuracy: {final_train_acc:.2f}%")
@@ -153,7 +153,7 @@ def train_baseline_classifier(num_samples=10000, hidden_dim=512, epochs=100,
         print(f"Overfitting detected! (Gap: {overfitting_gap:.2f}%) -> MIA should be effective.")
     else:
         print(f"Low overfitting (Gap: {overfitting_gap:.2f}%) -> MIA might be less effective.")
-        
+
     print(f"{'='*70}")
 
     return model, indices
@@ -162,7 +162,7 @@ def train_baseline_classifier(num_samples=10000, hidden_dim=512, epochs=100,
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Train baseline classifier')
+    parser = argparse.ArgumentParser(description='Train MLP classifier')
     parser.add_argument('--num_samples', type=int, default=10000, help='Number of training samples')
     parser.add_argument('--hidden_dim', type=int, default=512, help='Hidden layer dimension')
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs')
@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    model, indices = train_baseline_classifier(
+    model, indices = train_mlp_classifier(
         num_samples=args.num_samples,
         hidden_dim=args.hidden_dim,
         epochs=args.epochs,

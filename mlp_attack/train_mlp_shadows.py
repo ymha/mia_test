@@ -1,7 +1,7 @@
 """
-Train shadow models for baseline classifier
+Train shadow models for MLP classifier
 
-These shadow models mimic the baseline architecture to generate
+These shadow models mimic the MLP architecture to generate
 training data for the membership inference attack.
 """
 
@@ -12,15 +12,15 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 import numpy as np
 import os
-from baseline_classifier_model import BaselineClassifier
+from mlp_classifier_model import MLPClassifier
 
 
-def train_single_baseline_shadow(shadow_id, hidden_dim=512, num_samples=10000,
-                                 epochs=100, batch_size=128, learning_rate=1e-3,
-                                 device='cpu', save_dir='baseline_shadow_models',
-                                 target_indices=None):
+def train_single_mlp_shadow(shadow_id, hidden_dim=512, num_samples=10000,
+                            epochs=100, batch_size=128, learning_rate=1e-3,
+                            device='cpu', save_dir='mlp_shadow_models',
+                            target_indices=None):
     """
-    Train a single shadow model with baseline architecture
+    Train a single shadow model with MLP architecture
 
     Args:
         shadow_id: ID of the shadow model
@@ -65,7 +65,7 @@ def train_single_baseline_shadow(shadow_id, hidden_dim=512, num_samples=10000,
     train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    shadow_model = BaselineClassifier(hidden_dim=hidden_dim).to(device)
+    shadow_model = MLPClassifier(hidden_dim=hidden_dim).to(device)
     optimizer = optim.Adam(shadow_model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
 
@@ -156,10 +156,10 @@ def train_single_baseline_shadow(shadow_id, hidden_dim=512, num_samples=10000,
     final_test_accuracy = 100 * final_test_correct / final_test_total
     final_test_loss = final_test_loss / len(test_loader)
 
-    print(f"  Baseline shadow {shadow_id} final: Train Acc={final_train_accuracy:.2f}%, Test Acc={final_test_accuracy:.2f}% (Gap: {final_train_accuracy - final_test_accuracy:.2f}%)")
+    print(f"  MLP shadow {shadow_id} final: Train Acc={final_train_accuracy:.2f}%, Test Acc={final_test_accuracy:.2f}% (Gap: {final_train_accuracy - final_test_accuracy:.2f}%)")
 
     os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, f'baseline_shadow_{shadow_id}.pth')
+    save_path = os.path.join(save_dir, f'mlp_shadow_{shadow_id}.pth')
 
     torch.save({
         'model_state_dict': shadow_model.state_dict(),
@@ -176,19 +176,19 @@ def train_single_baseline_shadow(shadow_id, hidden_dim=512, num_samples=10000,
     return shadow_model, indices, final_train_accuracy, final_train_loss, final_test_accuracy, final_test_loss
 
 
-def train_baseline_shadow_models(num_shadows=50, baseline_classifier_path='baseline_classifier.pth',
-                                 hidden_dim=512, num_samples=10000, epochs=100,
-                                 batch_size=128, learning_rate=1e-3, device='cpu',
-                                 save_dir='baseline_shadow_models'):
+def train_mlp_shadow_models(num_shadows=50, mlp_classifier_path='mlp_classifier.pth',
+                            hidden_dim=512, num_samples=10000, epochs=100,
+                            batch_size=128, learning_rate=1e-3, device='cpu',
+                            save_dir='mlp_shadow_models'):
     """
-    Train multiple baseline shadow models for membership inference attack
+    Train multiple MLP shadow models for membership inference attack
     """
-    print(f"Training {num_shadows} BASELINE shadow models")
+    print(f"Training {num_shadows} MLP shadow models")
     print(f"Each shadow model: {hidden_dim}-256 MLP")
     print(f"Device: {device}")
     print()
 
-    checkpoint = torch.load(baseline_classifier_path, map_location=device, weights_only=False)
+    checkpoint = torch.load(mlp_classifier_path, map_location=device, weights_only=False)
     target_training_indices = checkpoint['training_indices']
     target_train_acc = checkpoint.get('final_train_accuracy', 'N/A')
     target_test_acc = checkpoint.get('final_test_accuracy', 'N/A')
@@ -204,9 +204,9 @@ def train_baseline_shadow_models(num_shadows=50, baseline_classifier_path='basel
     all_test_losses = []
 
     for i in range(num_shadows):
-        print(f"Training baseline shadow model {i+1}/{num_shadows}...")
+        print(f"Training MLP shadow model {i+1}/{num_shadows}...")
 
-        _, indices, train_acc, train_loss, test_acc, test_loss = train_single_baseline_shadow(
+        _, indices, train_acc, train_loss, test_acc, test_loss = train_single_mlp_shadow(
             shadow_id=i,
             hidden_dim=hidden_dim,
             num_samples=num_samples,
@@ -224,7 +224,7 @@ def train_baseline_shadow_models(num_shadows=50, baseline_classifier_path='basel
         all_test_losses.append(test_loss)
         print(f"✓ Shadow model {i+1} complete")
 
-    np.save(os.path.join(save_dir, 'all_baseline_shadow_indices.npy'), np.array(all_indices))
+    np.save(os.path.join(save_dir, 'all_mlp_shadow_indices.npy'), np.array(all_indices))
 
     import json
     performance_summary = {
@@ -255,11 +255,11 @@ def train_baseline_shadow_models(num_shadows=50, baseline_classifier_path='basel
         }
     }
 
-    with open(os.path.join(save_dir, 'baseline_shadow_performance_summary.json'), 'w') as f:
+    with open(os.path.join(save_dir, 'mlp_shadow_performance_summary.json'), 'w') as f:
         json.dump(performance_summary, f, indent=2)
 
     print(f"\n{'='*70}")
-    print(f"BASELINE SHADOW MODELS PERFORMANCE SUMMARY")
+    print(f"MLP SHADOW MODELS PERFORMANCE SUMMARY")
     print(f"{'='*70}")
     print(f"Total shadow models trained: {num_shadows}")
     
@@ -275,17 +275,17 @@ def train_baseline_shadow_models(num_shadows=50, baseline_classifier_path='basel
     print(f"\nMean Overfitting Gap (Train Acc - Test Acc): {mean_gap:.2f}%")
     
     print(f"\nFiles saved to {save_dir}/:")
-    print(f"  - baseline_shadow_{{id}}.pth: Shadow models")
-    print(f"  - baseline_shadow_performance_summary.json: Performance metrics")
+    print(f"  - mlp_shadow_{{id}}.pth: Shadow models")
+    print(f"  - mlp_shadow_performance_summary.json: Performance metrics")
     print(f"{'='*70}")
-    
+
     return all_indices
 
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Train baseline shadow models')
+    parser = argparse.ArgumentParser(description='Train MLP shadow models')
     parser.add_argument('--num_shadows', type=int, default=50, help='Number of shadow models')
     parser.add_argument('--hidden_dim', type=int, default=512, help='Hidden dimension')
     parser.add_argument('--num_samples', type=int, default=10000, help='Samples per shadow')
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    train_baseline_shadow_models(
+    train_mlp_shadow_models(
         num_shadows=args.num_shadows,
         hidden_dim=args.hidden_dim,
         num_samples=args.num_samples,

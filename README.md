@@ -14,12 +14,12 @@ Educational and research use only.
 
 ```
 mia_test/
-├── baseline_mlp/          # MLP-based membership inference attack
-│   ├── baseline_classifier_model.py
-│   ├── train_baseline_classifier.py
-│   ├── train_baseline_shadows.py
-│   ├── baseline_attack.py
-│   ├── run_baseline_attack_demo.py
+├── mlp_attack/            # MLP-based membership inference attack
+│   ├── mlp_classifier_model.py
+│   ├── train_mlp_classifier.py
+│   ├── train_mlp_shadows.py
+│   ├── mlp_attack.py
+│   ├── run_mlp_attack_demo.py
 │   ├── membership_inference_attack.py
 │   └── README.md
 │
@@ -39,7 +39,7 @@ mia_test/
 
 ## Two Attack Implementations
 
-### 1. Baseline MLP Attack (`baseline_mlp/`)
+### 1. MLP Attack (`mlp_attack/`)
 - **Architecture**: Multi-Layer Perceptron (3072 → 512 → 256 → 10)
 - **Input**: Flattened CIFAR10 images
 - **Activation**: ReLU
@@ -63,8 +63,8 @@ pip install -r requirements.txt
 
 **MLP Attack:**
 ```bash
-cd baseline_mlp
-python run_baseline_attack_demo.py
+cd mlp_attack
+python run_mlp_attack_demo.py
 ```
 
 **CNN Attack:**
@@ -89,7 +89,7 @@ python run_cnn_attack_demo.py
 
 ## Key Differences Between Implementations
 
-| Feature | Baseline MLP | CNN Attack |
+| Feature | MLP Attack | CNN Attack |
 |---------|--------------|------------|
 | Architecture | Fully Connected | Convolutional |
 | Input | Flattened (3072D) | Spatial (32×32×3) |

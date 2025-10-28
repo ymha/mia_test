@@ -1,10 +1,10 @@
-# Baseline MLP - Membership Inference Attack
+# MLP Attack - Membership Inference Attack
 
-This directory contains code for membership inference attacks on a baseline MLP (Multi-Layer Perceptron) classifier trained on CIFAR10.
+This directory contains code for membership inference attacks on an MLP (Multi-Layer Perceptron) classifier trained on CIFAR10.
 
 ## Architecture
 
-**Target Model: Baseline MLP Classifier**
+**Target Model: MLP Classifier**
 - Input: 3072 dimensions (32×32×3 CIFAR10 images flattened)
 - Hidden layer 1: 512 neurons
 - Hidden layer 2: 256 neurons
@@ -14,11 +14,11 @@ This directory contains code for membership inference attacks on a baseline MLP 
 
 ## Files
 
-- **baseline_classifier_model.py**: MLP model architecture
-- **train_baseline_classifier.py**: Train the target MLP classifier
-- **train_baseline_shadows.py**: Train shadow models for attack
-- **baseline_attack.py**: Membership inference attack implementation
-- **run_baseline_attack_demo.py**: Complete end-to-end demo
+- **mlp_classifier_model.py**: MLP model architecture
+- **train_mlp_classifier.py**: Train the target MLP classifier
+- **train_mlp_shadows.py**: Train shadow models for attack
+- **mlp_attack.py**: Membership inference attack implementation
+- **run_mlp_attack_demo.py**: Complete end-to-end demo
 - **membership_inference_attack.py**: Shared attack model architecture
 
 ## Usage
@@ -26,8 +26,8 @@ This directory contains code for membership inference attacks on a baseline MLP 
 ### Option 1: Full Demo (Recommended)
 Run the complete pipeline automatically:
 ```bash
-cd baseline_mlp
-python run_baseline_attack_demo.py
+cd mlp_attack
+python run_mlp_attack_demo.py
 ```
 
 This will:
@@ -41,16 +41,16 @@ This will:
 
 **Step 1: Train target classifier**
 ```bash
-python train_baseline_classifier.py --num_samples 10000 --epochs 100 --device cpu
+python train_mlp_classifier.py --num_samples 10000 --epochs 100 --device cpu
 ```
 
 **Step 2: Train shadow models**
 ```bash
-python train_baseline_shadows.py --num_shadows 20 --epochs 100 --device cpu
+python train_mlp_shadows.py --num_shadows 20 --epochs 100 --device cpu
 ```
 
 **Step 3-5: Run attack evaluation**
-Use the functions in `baseline_attack.py` to prepare attack data and evaluate.
+Use the functions in `mlp_attack.py` to prepare attack data and evaluate.
 
 ## Key Parameters
 
@@ -62,9 +62,9 @@ Use the functions in `baseline_attack.py` to prepare attack data and evaluate.
 
 ## Output Files
 
-- `baseline_classifier.pth`: Trained target model
-- `baseline_shadow_models/`: Directory with shadow models
-- `baseline_attack_models/`: Directory with attack models
+- `mlp_classifier.pth`: Trained target model
+- `mlp_shadow_models/`: Directory with shadow models
+- `mlp_attack_models/`: Directory with attack models
 
 ## Expected Results
 

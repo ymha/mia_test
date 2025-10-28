@@ -1,5 +1,5 @@
 """
-Membership inference attack on baseline classifier
+Membership inference attack on MLP classifier
 
 This script demonstrates that attacks WORK on classifiers without privacy protections.
 """
@@ -9,13 +9,13 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import os
-from baseline_classifier_model import BaselineClassifier
+from mlp_classifier_model import MLPClassifier
 from membership_inference_attack import AttackModel, train_attack_models
 
 
-def extract_baseline_features(model, data_loader, device='cpu'):
+def extract_mlp_features(model, data_loader, device='cpu'):
     """
-    Extract features from baseline classifier for membership inference
+    Extract features from MLP classifier for membership inference
 
     Features (11-D):
     - Class label (0-9)
@@ -64,14 +64,14 @@ def extract_baseline_features(model, data_loader, device='cpu'):
     return features_by_class, np.array(all_labels)
 
 
-def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
-                                    baseline_classifier_path='baseline_classifier.pth',
-                                    hidden_dim=512,
-                                    device='cpu'):
+def prepare_mlp_attack_dataset(shadow_dir='mlp_shadow_models',
+                               mlp_classifier_path='mlp_classifier.pth',
+                               hidden_dim=512,
+                               device='cpu'):
     """
-    Prepare attack dataset from baseline shadow models
+    Prepare attack dataset from MLP shadow models
     """
-    print("Preparing attack dataset from baseline shadow models...")
+    print("Preparing attack dataset from MLP shadow models...")
     print("Features: 11-D (class_label, prob_0, prob_1, ..., prob_9)")
     print("Labels: 1=member (IN), 0=non-member (OUT)")
     print()
@@ -82,7 +82,7 @@ def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
     ])
     cifar10_dataset = datasets.CIFAR10(root='../data', train=True, download=True, transform=transform)
 
-    checkpoint = torch.load(baseline_classifier_path, map_location=device, weights_only=False)
+    checkpoint = torch.load(mlp_classifier_path, map_location=device, weights_only=False)
     target_training_indices = set(checkpoint['training_indices'])
     print(f"Target model trained on {len(target_training_indices)} samples")
     print()
@@ -90,7 +90,7 @@ def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
     class_attack_features = {i: [] for i in range(10)}
     class_attack_labels = {i: [] for i in range(10)}
 
-    shadow_files = sorted([f for f in os.listdir(shadow_dir) if f.startswith('baseline_shadow_') and f.endswith('.pth')])
+    shadow_files = sorted([f for f in os.listdir(shadow_dir) if f.startswith('mlp_shadow_') and f.endswith('.pth')])
 
     for shadow_file in shadow_files:
         shadow_path = os.path.join(shadow_dir, shadow_file)
@@ -98,7 +98,7 @@ def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
         shadow_id = shadow_checkpoint['shadow_id']
         shadow_indices = shadow_checkpoint['training_indices']
 
-        shadow_model = BaselineClassifier(hidden_dim=hidden_dim).to(device)
+        shadow_model = MLPClassifier(hidden_dim=hidden_dim).to(device)
         shadow_model.load_state_dict(shadow_checkpoint['model_state_dict'])
         shadow_model.eval()
 
@@ -112,11 +112,11 @@ def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
 
         member_dataset = torch.utils.data.Subset(cifar10_dataset, shadow_indices)
         member_loader = DataLoader(member_dataset, batch_size=128, shuffle=False)
-        member_features_by_class, _ = extract_baseline_features(shadow_model, member_loader, device)
+        member_features_by_class, _ = extract_mlp_features(shadow_model, member_loader, device)
 
         non_member_dataset = torch.utils.data.Subset(cifar10_dataset, non_member_indices)
         non_member_loader = DataLoader(non_member_dataset, batch_size=128, shuffle=False)
-        non_member_features_by_class, _ = extract_baseline_features(shadow_model, non_member_loader, device)
+        non_member_features_by_class, _ = extract_mlp_features(shadow_model, non_member_loader, device)
 
         for class_id in range(10):
             if len(member_features_by_class[class_id]) > 0:
@@ -166,17 +166,17 @@ def prepare_baseline_attack_dataset(shadow_dir='baseline_shadow_models',
     return class_datasets
 
 
-def evaluate_baseline_attack(attack_models, target_classifier,
-                             baseline_classifier_path='baseline_classifier.pth',
-                             hidden_dim=512, device='cpu'):
+def evaluate_mlp_attack(attack_models, target_classifier,
+                        mlp_classifier_path='mlp_classifier.pth',
+                        hidden_dim=512, device='cpu'):
     """
-    Evaluate attack on baseline classifier
+    Evaluate attack on MLP classifier
     """
     print("\n" + "="*70)
-    print("EVALUATING ATTACK ON BASELINE CLASSIFIER")
+    print("EVALUATING ATTACK ON MLP CLASSIFIER")
     print("="*70)
 
-    checkpoint = torch.load(baseline_classifier_path, map_location=device, weights_only=False)
+    checkpoint = torch.load(mlp_classifier_path, map_location=device, weights_only=False)
     target_training_indices = checkpoint['training_indices']
 
     transform = transforms.Compose([
@@ -188,10 +188,10 @@ def evaluate_baseline_attack(attack_models, target_classifier,
 
     member_dataset = torch.utils.data.Subset(cifar10_train_dataset, target_training_indices)
     member_loader = DataLoader(member_dataset, batch_size=128, shuffle=False)
-    member_features_by_class, _ = extract_baseline_features(target_classifier, member_loader, device)
+    member_features_by_class, _ = extract_mlp_features(target_classifier, member_loader, device)
 
     non_member_loader = DataLoader(cifar10_test_dataset, batch_size=128, shuffle=False)
-    non_member_features_by_class, _ = extract_baseline_features(target_classifier, non_member_loader, device)
+    non_member_features_by_class, _ = extract_mlp_features(target_classifier, non_member_loader, device)
 
     all_predictions = []
     all_true_labels = []
@@ -259,5 +259,5 @@ def evaluate_baseline_attack(attack_models, target_classifier,
 
 
 if __name__ == "__main__":
-    print("This script will demonstrate that attacks WORK on baseline classifiers!")
-    print("Use it to train and evaluate attacks on the vulnerable baseline.")
+    print("This script will demonstrate that attacks WORK on MLP classifiers!")
+    print("Use it to train and evaluate attacks on the vulnerable MLP classifier.")
