@@ -2,6 +2,10 @@
 
 This repository contains implementations of membership inference attacks on different model architectures trained on CIFAR10.
 
+## Reference
+
+R. Shokri et al., “Membership Inference Attacks Against Machine Learning Models,” IEEE S&P, 2017
+
 ## Author
 
 Youngmok Ha @ Imperial College London
